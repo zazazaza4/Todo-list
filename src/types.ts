@@ -8,6 +8,12 @@ export type NoteData = {
   tags: Tag[];
 };
 
+export type SimplifiedNote = {
+  tags: Tag[];
+  title: string;
+  id: string;
+};
+
 export type Tag = {
   id: string;
   label: string;
