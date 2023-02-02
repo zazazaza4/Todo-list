@@ -4,26 +4,35 @@ import CreatableReactSelect from "react-select/creatable";
 import { Row, Col, Stack, Button, Form } from "react-bootstrap";
 
 import { SimplifiedNote, Tag } from "../types";
-import { NoteCard } from "../components";
+import { EditTagsModal, NoteCard } from "../components";
 
 type NoteListProps = {
   avaliableTags: Tag[];
   notes: SimplifiedNote[];
+  onDeleteTag: (id: string) => void;
+  onUpdateTag: (id: string, label: string) => void;
 };
 
-export function NoteList({ avaliableTags, notes }: NoteListProps) {
+export function NoteList({
+  avaliableTags,
+  notes,
+  onDeleteTag,
+  onUpdateTag,
+}: NoteListProps) {
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [title, setTitle] = useState<string>("");
+  const [editTagsModalIsOpen, setEditTagsModalIsOpen] =
+    useState<boolean>(false);
 
   const filteredNotes = useMemo(() => {
     return notes.filter((note) => {
       return (
-        title === "" ||
-        (note.title.toLowerCase().includes(title.toLowerCase()) &&
-          (selectedTags.length === 0 ||
-            selectedTags.every((tag) =>
-              note.tags.some((noteTag) => noteTag.id === tag.id)
-            )))
+        (title === "" ||
+          note.title.toLowerCase().includes(title.toLowerCase())) &&
+        (selectedTags.length === 0 ||
+          selectedTags.every((tag) =>
+            note.tags.some((noteTag) => noteTag.id === tag.id)
+          ))
       );
     });
   }, [title, selectedTags, notes]);
@@ -39,7 +48,12 @@ export function NoteList({ avaliableTags, notes }: NoteListProps) {
             <Link to="/new">
               <Button variant="primary">Create</Button>
             </Link>
-            <Button variant="outline-secondary">Edit Tags</Button>
+            <Button
+              onClick={() => setEditTagsModalIsOpen(true)}
+              variant="outline-secondary"
+            >
+              Edit Tags
+            </Button>
           </Stack>
         </Col>
       </Row>
@@ -85,6 +99,13 @@ export function NoteList({ avaliableTags, notes }: NoteListProps) {
           </Col>
         ))}
       </Row>
+      <EditTagsModal
+        availableTags={avaliableTags}
+        handleClose={() => setEditTagsModalIsOpen(false)}
+        show={editTagsModalIsOpen}
+        onDeleteTag={onDeleteTag}
+        onUpdateTag={onUpdateTag}
+      />
     </>
   );
 }
